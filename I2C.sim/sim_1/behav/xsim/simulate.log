@@ -1,0 +1,3 @@
+Time resolution is 1 ps
+DIVIDER =          62
+$stop called at time : 25100 ns : File "F:/Vivado_Projects/I2C/I2C.srcs/sim_1/new/tb_i2c_top.v" Line 58
