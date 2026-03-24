@@ -56,7 +56,7 @@ reg sda_oe ;
 //reg [31:0] test_cnt ; // test counter for sda behaviour 
 
 // bit engine 
-reg [7:0] data_byte = 8'b10101010; // test pattern
+reg [7:0] data_byte = 8'b01010101; // test pattern
 reg [7:0] shift_reg;
 reg [3:0] bit_cnt;
 reg sending;
@@ -122,7 +122,7 @@ always @(posedge clk or posedge rst) begin
     end
 end
 
-// transmission 
+// transmission (8databits + 1ack bit)
 always @(posedge clk or posedge rst) begin
     if (rst) begin
         sda_oe <= 0;
@@ -137,11 +137,25 @@ always @(posedge clk or posedge rst) begin
 
                 shift_reg <= shift_reg << 1;
                 bit_cnt <= bit_cnt + 1;
-            end else if (bit_cnt == 8)  begin
+            end else if (bit_cnt == 8)  begin  
                 sda_oe <= 0; // release after byte
                 bit_cnt <= bit_cnt+1 ; 
             end
         end
+    end
+end
+
+// ack detection 
+
+always @(posedge clk or posedge rst) begin 
+    if(rst)begin
+        ack_reg <= 0 ; 
+    end 
+    else if(sending && scl_rising && bit_cnt == 8)begin
+        if(sda == 0) 
+            ack_reg <= 1;
+        else 
+            ack_reg <=0 ; 
     end
 end
 
@@ -159,6 +173,7 @@ end
 assign debug_cnt = clk_cnt;   // debugg line for scl
 assign debug_sda_oe = sda_oe ; 
 assign debug_bit_cnt = bit_cnt; 
+assign ack_received = ack_reg ; 
 // ==========================
 // OUTPUT LOGIC
 // ==========================
